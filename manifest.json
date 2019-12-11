@@ -6,7 +6,7 @@
   "content_scripts": [
     {
       "matches": ["http://timetable.student.curtin.edu.au/criteriaEntry.jsf"],
-      "js": ["content.js"]
+      "js": ["jquery-3.4.1.min.js", "content.js"]
     }
   ]
 }
