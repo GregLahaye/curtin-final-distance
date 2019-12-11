@@ -9,6 +9,14 @@ class Lesson {
   }
 }
 
+function lessonIsValid(lesson) {
+  let valid = true;
+
+  valid = valid && lesson.venue !== 'NO.VENUE';
+
+  return valid;
+}
+
 function parseLessons() {
   const lessons = [];
 
@@ -25,9 +33,13 @@ function parseLessons() {
 
       const lesson = new Lesson(unit, activity, day, start, finish, venue);
 
-      lessons.push(lesson);
+      if (lessonIsValid(lesson)) {
+        lessons.push(lesson);
+      }
     });
   });
+
+  return lessons;
 }
 
 
