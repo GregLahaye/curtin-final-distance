@@ -1,0 +1,13 @@
+{
+  "manifest_version": 2,
+  "name": "Curtin Timetable Helper",
+  "description": "Helps you create the perfect Curtin timetable",
+  "version": "0.0.1",
+  "content_scripts": [
+    {
+      "matches": ["http://timetable.student.curtin.edu.au/criteriaEntry.jsf"],
+      "js": ["content.js"]
+    }
+  ]
+}
+
