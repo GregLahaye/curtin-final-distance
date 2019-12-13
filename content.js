@@ -12,11 +12,18 @@ class Period {
   }
 
   overlaps(other) {
-    return this.day === other.day && Math.max(this.start, other.start) < Math.min(this.end, other.end);
+    return (
+      this.day === other.day &&
+      Math.max(this.start, other.start) < Math.min(this.end, other.end)
+    );
   }
 
   equals(other) {
-    return this.day === other.day && this.start === other.start && this.end === other.end;
+    return (
+      this.day === other.day &&
+      this.start === other.start &&
+      this.end === other.end
+    );
   }
 }
 
@@ -71,7 +78,7 @@ class Schedule {
       }
     });
 
-    this.score = (this.travel * 2) * Object.keys(days).length;
+    this.score = this.travel * 2 * Object.keys(days).length;
 
     Object.keys(days).forEach((day) => {
       this.score += days[day].end - days[day].start - days[day].length;
@@ -103,20 +110,24 @@ function scrapeDocument() {
   const lessons = [];
 
   $('table.unitList tbody').each((i, tbodyElement) => {
-    $(tbodyElement).find('tr').each((j, trElement) => {
-      const tdElements = $(trElement).find('td span[title]');
+    $(tbodyElement)
+      .find('tr')
+      .each((j, trElement) => {
+        const tdElements = $(trElement).find('td span[title]');
 
-      const unit = $(trElement).find('td a[title]').text();
-      const activity = $(tdElements[1]).text();
-      const day = $(tdElements[3]).text();
-      const start = $(tdElements[4]).text();
-      const end = $(tdElements[5]).text();
-      const venue = $(tdElements[8]).text();
+        const unit = $(trElement)
+          .find('td a[title]')
+          .text();
+        const activity = $(tdElements[1]).text();
+        const day = $(tdElements[3]).text();
+        const start = $(tdElements[4]).text();
+        const end = $(tdElements[5]).text();
+        const venue = $(tdElements[8]).text();
 
-      const period = new Period(day, start, end);
-      const lesson = new Lesson(unit, activity, period, venue);
-      lessons.push(lesson);
-    });
+        const period = new Period(day, start, end);
+        const lesson = new Lesson(unit, activity, period, venue);
+        lessons.push(lesson);
+      });
   });
 
   return lessons;
@@ -158,7 +169,9 @@ function findBestSchedules(lessons, travelTime) {
 
   // create all permuations
   // https://stackoverflow.com/questions/12303989/cartesian-product-of-multiple-arrays-in-javascript/50631472#50631472
-  const permutations = groups.reduce((acc, curr) => acc.flatMap((c) => curr.map((n) => [].concat(c, n))));
+  const permutations = groups.reduce((acc, curr) =>
+    acc.flatMap((c) => curr.map((n) => [].concat(c, n)))
+  );
 
   const schedules = [];
   permutations.forEach((permutation) => {
@@ -172,6 +185,7 @@ function findBestSchedules(lessons, travelTime) {
 }
 
 function cleanPage() {
+  // TODO: remove all uneccessary elements from page
   $('.instructions').hide();
 }
 
@@ -186,13 +200,27 @@ function f() {
   const travelTime = 120;
 
   let lessons = scrapeDocument();
+  // TODO: move to separate function
   lessons = lessons.filter((lesson) => lessonFilter(lesson, blocked));
 
   const schedules = findBestSchedules(lessons, travelTime);
 
+  // TODO: move to separate function
   const top = schedules.sort((a, b) => a.score - b.score).slice(0, 10);
 
   cleanPage();
+
+  // TODO: create list of top ten best options
+  $('<ul>')
+    .attr('id', 'best')
+    .insertAfter('#timetable_gridbyunit_legend');
+  top.forEach((schedule) => {
+    $('ul#best').append($('<li>').text(schedule.lessons[0].period.day));
+  });
+
+  // TODO: add event listeners to update timetable when option from list is selected
+
+  // TODO: allow user to input blocked periods
 
   console.log(top);
 }

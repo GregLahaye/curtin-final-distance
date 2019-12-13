@@ -4,8 +4,10 @@
         "es6": true,
         "jquery": true
     },
+    "plugins": ["prettier"],
     "extends": [
-        "airbnb-base"
+        "airbnb-base",
+        "prettier"
     ],
     "globals": {
         "Atomics": "readonly",
@@ -16,6 +18,7 @@
         "sourceType": "module"
     },
     "rules": {
+      "prettier/prettier": ["error"],
       "max-classes-per-file": "off",
       "no-console": "off"
     }
