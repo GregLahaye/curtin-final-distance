@@ -7,28 +7,33 @@ class Period {
   }
 
   static parse(s) {
-    const parts = s.split(':');
-    const hours = parseInt(parts[0], 10);
-    const minutes = parseInt(parts[1], 10);
-    return (hours * 60) + minutes;
+    const a = s.split(':');
+    return +a[0] * 60 + +a[1];
   }
 
   overlaps(other) {
-    return this.day === other.day
-        && Math.max(this.start, other.start) < Math.min(this.end, other.end);
+    return this.day === other.day && Math.max(this.start, other.start) < Math.min(this.end, other.end);
+  }
+
+  equals(other) {
+    return this.day === other.day && this.start === other.start && this.end === other.end;
   }
 }
 
 class Lesson {
-  constructor(unit, activity, day, start, end, venue) {
+  constructor(unit, activity, period, venue) {
     this.unit = unit;
     this.activity = activity;
-    this.period = new Period(day, start, end);
+    this.period = period;
     this.venue = venue;
   }
 
   same(other) {
     return this.unit === other.unit && this.activity === other.activity;
+  }
+
+  equals(other) {
+    return this.same(other) && this.period.equals(other.period);
   }
 }
 
@@ -40,6 +45,8 @@ class Schedule {
   }
 
   calculate() {
+    // TODO: can be made more concise
+
     this.score = 0;
 
     const days = {};
@@ -72,6 +79,7 @@ class Schedule {
   }
 
   conflicts() {
+    // TODO: can be made more concise
     let conflict = false;
 
     const periods = [];
@@ -91,7 +99,7 @@ class Schedule {
   }
 }
 
-function parseDOM() {
+function scrapeDocument() {
   const lessons = [];
 
   $('table.unitList tbody').each((i, tbodyElement) => {
@@ -105,7 +113,8 @@ function parseDOM() {
       const end = $(tdElements[5]).text();
       const venue = $(tdElements[8]).text();
 
-      const lesson = new Lesson(unit, activity, day, start, end, venue);
+      const period = new Period(day, start, end);
+      const lesson = new Lesson(unit, activity, period, venue);
       lessons.push(lesson);
     });
   });
@@ -113,26 +122,9 @@ function parseDOM() {
   return lessons;
 }
 
-/*
-function generateUnits(lessons) {
-  const units = {};
-
-  lessons.forEach((lesson) => {
-    if (!(lesson.unit in units)) {
-      units[lesson.unit] = {};
-      units[lesson.unit][lesson.activity] = [];
-    } else if (!(lesson.activity in units[lesson.unit])) {
-      units[lesson.unit][lesson.activity] = [];
-    }
-
-    units[lesson.unit][lesson.activity].push(lesson);
-  });
-
-  return units;
-}
-*/
-
 function lessonFilter(lesson, blocked) {
+  // TODO: clean  this up
+
   let valid = lesson.venue !== 'NO.VENUE'; // filter out online lectures
 
   // filter out lessons during blocked periods
@@ -146,6 +138,7 @@ function lessonFilter(lesson, blocked) {
 }
 
 function findBestSchedules(lessons, travelTime) {
+  // TODO: rename function, separate and decouple
   const groups = [];
 
   lessons.forEach((lesson) => {
@@ -178,6 +171,10 @@ function findBestSchedules(lessons, travelTime) {
   return schedules;
 }
 
+function cleanPage() {
+  $('.instructions').hide();
+}
+
 function f() {
   // user defined values
   const blocked = [
@@ -188,21 +185,16 @@ function f() {
 
   const travelTime = 120;
 
-  let lessons = parseDOM();
+  let lessons = scrapeDocument();
   lessons = lessons.filter((lesson) => lessonFilter(lesson, blocked));
 
   const schedules = findBestSchedules(lessons, travelTime);
 
-  let best = schedules[0];
+  const top = schedules.sort((a, b) => a.score - b.score).slice(0, 10);
 
-  schedules.forEach((schedule) => {
-    if (schedule.score < best) {
-      best = schedule;
-    }
-  });
+  cleanPage();
 
-  console.log(schedules);
-  console.log(best);
+  console.log(top);
 }
 
 f();
