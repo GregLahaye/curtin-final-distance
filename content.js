@@ -40,7 +40,7 @@ class Lesson {
   }
 
   equals(other) {
-    return this.same(other) && this.period.equals(other.period);
+    return this.same(other) && this.period.equals(other.period) && this.venue === other.venue;
   }
 }
 
@@ -109,25 +109,21 @@ class Schedule {
 function scrapeDocument() {
   const lessons = [];
 
-  $('table.unitList tbody').each((i, tbodyElement) => {
-    $(tbodyElement)
-      .find('tr')
-      .each((j, trElement) => {
-        const tdElements = $(trElement).find('td span[title]');
+  $('table.unitList tbody tr').each((i, trElement) => {
+      const tdElements = $(trElement).find('td span[title]');
 
-        const unit = $(trElement)
-          .find('td a[title]')
-          .text();
-        const activity = $(tdElements[1]).text();
-        const day = $(tdElements[3]).text();
-        const start = $(tdElements[4]).text();
-        const end = $(tdElements[5]).text();
-        const venue = $(tdElements[8]).text();
+      const unit = $(trElement)
+        .find('td a[title]')
+        .text();
+      const activity = $(tdElements[1]).text();
+      const day = $(tdElements[3]).text();
+      const start = $(tdElements[4]).text();
+      const end = $(tdElements[5]).text();
+      const venue = $(tdElements[8]).text();
 
-        const period = new Period(day, start, end);
-        const lesson = new Lesson(unit, activity, period, venue);
-        lessons.push(lesson);
-      });
+      const period = new Period(day, start, end);
+      const lesson = new Lesson(unit, activity, period, venue);
+      lessons.push(lesson);
   });
 
   return lessons;
@@ -191,11 +187,14 @@ function cleanPage() {
 
 function f() {
   // user defined values
+  /*
   const blocked = [
     new Period('Monday', '16:00', '20:00'),
     new Period('Friday', '06:00', '18:00'),
     new Period('Thursday', '12:00', '14:00'),
   ];
+  */
+  const blocked = [];
 
   const travelTime = 120;
 
@@ -206,7 +205,7 @@ function f() {
   const schedules = findBestSchedules(lessons, travelTime);
 
   // TODO: move to separate function
-  const top = schedules.sort((a, b) => a.score - b.score).slice(0, 10);
+  const best = schedules.sort((a, b) => a.score - b.score).slice(0, 10);
 
   cleanPage();
 
@@ -214,15 +213,57 @@ function f() {
   $('<ul>')
     .attr('id', 'best')
     .insertAfter('#timetable_gridbyunit_legend');
-  top.forEach((schedule) => {
-    $('ul#best').append($('<li>').text(schedule.lessons[0].period.day));
+
+  best.forEach((schedule, index) => {
+    $('ul#best').append($('<li>').attr('id', index).text(index));
   });
+
+  $('ul#best > li').on('click', (e) => {
+    doStuff(best[e.target.id]);
+  });
+
 
   // TODO: add event listeners to update timetable when option from list is selected
 
   // TODO: allow user to input blocked periods
 
-  console.log(top);
+  console.log(best);
+}
+
+// TODO: rename and clean
+function doStuff(schedule) {
+  $('table.unitList input').each((i, input) => {
+    $(input).prop('checked', false);
+  });
+
+  $('table.unitList tbody tr').each((i, trElement) => {
+    const tdElements = $(trElement).find('td span[title]');
+      const unit = $(trElement)
+        .find('td a[title]')
+        .text();
+    const activity = $(tdElements[1]).text();
+    const day = $(tdElements[3]).text();
+    const start = $(tdElements[4]).text();
+    const end = $(tdElements[5]).text();
+    const venue = $(tdElements[8]).text();
+    const period = new Period(day, start, end);
+    const lesson = new Lesson(unit, activity, period, venue);
+    
+    let j = 0;
+    let found = false;
+    while (!found && j < schedule.lessons.length) {
+      if (schedule.lessons[j].equals(lesson)) {
+        $(trElement).find('input').prop('checked', true);
+      }
+
+      j += 1;
+    }
+        
+  });
+
+  $('input.formSubmit').click();
+  
+  // TODO: add anchor tag and go there (top of calendar)
 }
 
 f();
