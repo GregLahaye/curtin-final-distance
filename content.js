@@ -40,7 +40,11 @@ class Lesson {
   }
 
   equals(other) {
-    return this.same(other) && this.period.equals(other.period) && this.venue === other.venue;
+    return (
+      this.same(other) &&
+      this.period.equals(other.period) &&
+      this.venue === other.venue
+    );
   }
 }
 
@@ -110,20 +114,20 @@ function scrapeDocument() {
   const lessons = [];
 
   $('table.unitList tbody tr').each((i, trElement) => {
-      const tdElements = $(trElement).find('td span[title]');
+    const tdElements = $(trElement).find('td span[title]');
 
-      const unit = $(trElement)
-        .find('td a[title]')
-        .text();
-      const activity = $(tdElements[1]).text();
-      const day = $(tdElements[3]).text();
-      const start = $(tdElements[4]).text();
-      const end = $(tdElements[5]).text();
-      const venue = $(tdElements[8]).text();
+    const unit = $(trElement)
+      .find('td a[title]')
+      .text();
+    const activity = $(tdElements[1]).text();
+    const day = $(tdElements[3]).text();
+    const start = $(tdElements[4]).text();
+    const end = $(tdElements[5]).text();
+    const venue = $(tdElements[8]).text();
 
-      const period = new Period(day, start, end);
-      const lesson = new Lesson(unit, activity, period, venue);
-      lessons.push(lesson);
+    const period = new Period(day, start, end);
+    const lesson = new Lesson(unit, activity, period, venue);
+    lessons.push(lesson);
   });
 
   return lessons;
@@ -186,6 +190,9 @@ function cleanPage() {
 }
 
 function f() {
+  // TODO: add option to not allow full classes
+  // TODO: add option to not allow certain classes
+
   // user defined values
   const blocked = [
     new Period('Monday', '16:00', '20:00'),
@@ -218,17 +225,20 @@ function f() {
     .insertAfter('#timetable_gridbyunit_legend');
 
   best.forEach((schedule, index) => {
-    $('ul#best').append($('<li>').attr('id', index).text(index)
-    .css('float', 'left')
-    .css('list-style-type', 'none')
-    .css('width', '20%')
-    .css('margin', '0')
-    .css('text-align', 'center')
-    .css('padding', '10px 0')
+    $('ul#best').append(
+      $('<li>')
+        .attr('id', index)
+        .text(index)
+        .css('float', 'left')
+        .css('list-style-type', 'none')
+        .css('width', '20%')
+        .css('margin', '0')
+        .css('text-align', 'center')
+        .css('padding', '10px 0')
     );
   });
 
-  $("ul li:odd").css('background-color', '#ddd');
+  $('ul li:odd').css('background-color', '#ddd');
 
   $('ul#best > li').on('click', (e) => {
     doStuff(best[e.target.id]);
@@ -249,9 +259,9 @@ function doStuff(schedule) {
 
   $('table.unitList tbody tr').each((i, trElement) => {
     const tdElements = $(trElement).find('td span[title]');
-      const unit = $(trElement)
-        .find('td a[title]')
-        .text();
+    const unit = $(trElement)
+      .find('td a[title]')
+      .text();
     const activity = $(tdElements[1]).text();
     const day = $(tdElements[3]).text();
     const start = $(tdElements[4]).text();
@@ -259,23 +269,24 @@ function doStuff(schedule) {
     const venue = $(tdElements[8]).text();
     const period = new Period(day, start, end);
     const lesson = new Lesson(unit, activity, period, venue);
-    
+
     let j = 0;
-    let found = false;
+    const found = false;
     while (!found && j < schedule.lessons.length) {
       if (schedule.lessons[j].equals(lesson)) {
-        $(trElement).find('input').prop('checked', true);
+        $(trElement)
+          .find('input')
+          .prop('checked', true);
       }
 
       j += 1;
     }
-        
   });
 
   $('input.formSubmit').click();
 
-  $(document).scrollTop( $("#best").offset().top ); 
-  
+  $(document).scrollTop($('#best').offset().top);
+
   // TODO: add anchor tag and go there (top of calendar)
 }
 
