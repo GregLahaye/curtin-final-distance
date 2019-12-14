@@ -333,6 +333,15 @@ function updateSchedulesList(schedules) {
   $('#schedules li#0').click();
 }
 
+function createInformationElement() {
+  $(`<div id="travelTimeContainer" style="padding: 20px 40px; background-color: #eee; border-radius: 5px; margin: 10px">
+      <span style="font-size: 18px">What is Curtin Final Distance?</span>
+      <div style="padding: 20px">
+        <span style="font-size: 14px">Curtin Final Distance is a web extension built to close the gaps in your university schedule. It includes the ability to factor in your commute time and block off certain times of the week, useful to ensure you don't schedule classes during work or other commitments. It creates every possible combinations of classes and lets you choose from the ten (or more) schedules with the lowest distance. Distance is a score given to a schedule that is calculated by adding your commute time multiplied by two for every day you must attend university that week, plus the minutes between each class on a day.</span>
+      </div>
+    </div>`).insertAfter('#timetable_gridbyunit_legend');
+}
+
 function f() {
   let schedules = [];
   let travelTime = 60;
@@ -347,6 +356,10 @@ function f() {
   // create travel time element
   createTravelTimeElement();
 
+  // create info element
+  createInformationElement();
+
+  // create schedules element
   createSchedulesElement();
 
   // create travel time update listener
