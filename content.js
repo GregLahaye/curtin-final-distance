@@ -187,14 +187,10 @@ function cleanPage() {
 
 function f() {
   // user defined values
-  /*
   const blocked = [
     new Period('Monday', '16:00', '20:00'),
-    new Period('Friday', '06:00', '18:00'),
-    new Period('Thursday', '12:00', '14:00'),
+    new Period('Thursday', '11:00', '13:00'),
   ];
-  */
-  const blocked = [];
 
   const travelTime = 120;
 
@@ -209,19 +205,34 @@ function f() {
 
   cleanPage();
 
-  // TODO: create list of top ten best options
+  // TODO: create list of top ten best options, more than ten if equal
   $('<ul>')
     .attr('id', 'best')
+    .css('list-style-type', 'none')
+    .css('margin', '0')
+    .css('padding', '0')
+    .css('overflow', 'hidden')
+    .css('width', '100%')
+    .css('text-align', 'center')
+    .css('background-color', '#eeeeee')
     .insertAfter('#timetable_gridbyunit_legend');
 
   best.forEach((schedule, index) => {
-    $('ul#best').append($('<li>').attr('id', index).text(index));
+    $('ul#best').append($('<li>').attr('id', index).text(index)
+    .css('float', 'left')
+    .css('list-style-type', 'none')
+    .css('width', '20%')
+    .css('margin', '0')
+    .css('text-align', 'center')
+    .css('padding', '10px 0')
+    );
   });
+
+  $("ul li:odd").css('background-color', '#ddd');
 
   $('ul#best > li').on('click', (e) => {
     doStuff(best[e.target.id]);
   });
-
 
   // TODO: add event listeners to update timetable when option from list is selected
 
@@ -262,6 +273,8 @@ function doStuff(schedule) {
   });
 
   $('input.formSubmit').click();
+
+  $(document).scrollTop( $("#best").offset().top ); 
   
   // TODO: add anchor tag and go there (top of calendar)
 }
