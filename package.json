@@ -1,7 +1,7 @@
 {
-  "name": "curtin-timetable-helper",
+  "name": "Curtin Final Distance",
   "version": "0.0.1",
-  "description": "Helps you create the perfect Curtin timetable",
+  "description": "Close the gaps in your Curtin timetable",
   "main": "index.js",
   "scripts": {
     "lint": "prettier *.js --write && eslint . --ext .js --fix"

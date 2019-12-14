@@ -58,7 +58,7 @@ class Schedule {
   calculate() {
     // TODO: can be made more concise
 
-    this.score = 0;
+    this.distance = 0;
 
     const days = {};
 
@@ -82,10 +82,10 @@ class Schedule {
       }
     });
 
-    this.score = this.travel * 2 * Object.keys(days).length;
+    this.distance = this.travel * 2 * Object.keys(days).length;
 
     Object.keys(days).forEach((day) => {
-      this.score += days[day].end - days[day].start - days[day].length;
+      this.distance += days[day].end - days[day].start - days[day].length;
     });
   }
 
@@ -134,7 +134,7 @@ function scrapeDocument() {
 }
 
 function lessonFilter(lesson, blockedPeriods) {
-  // TODO: clean  this up
+  // TODO: clean this up
 
   let valid = lesson.venue !== 'NO.VENUE'; // filter out online lectures
 
@@ -265,7 +265,7 @@ function calculateSchedules(blockedPeriods, travelTime) {
 
   const schedules = findBestSchedules(lessons, travelTime);
 
-  const best = schedules.sort((a, b) => a.score - b.score).slice(0, 10);
+  const best = schedules.sort((a, b) => a.distance - b.distance).slice(0, 10);
 
   return best;
 }
@@ -317,7 +317,7 @@ function updateSchedulesList(schedules) {
   // add each schedule to list
   schedules.forEach((schedule, index) => {
     $('#schedules').append(
-      $(`<li id="${index}">Schedule #${index} (${schedule.score})</li>`)
+      $(`<li id="${index}">Schedule #${index} (${schedule.distance})</li>`)
     );
   });
 
