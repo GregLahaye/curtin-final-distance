@@ -1,7 +1,7 @@
 {
   "name": "Curtin Final Distance",
   "version": "0.0.1",
-  "description": "Close the gaps in your Curtin timetable",
+  "description": "Close the gaps in your Curtin University timetable",
   "main": "index.js",
   "scripts": {
     "lint": "prettier *.js --write && eslint . --ext .js --fix"

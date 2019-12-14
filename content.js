@@ -203,7 +203,7 @@ function createTravelTimeElement() {
   );
 
   // create travel time input
-  $('#travelTimeContainer').append($('<input>').attr('id', 'travelTime'));
+  $('#travelTimeContainer').append($('<input type="number" id="travelTime">'));
 
   // create travel time button
   $('#travelTimeContainer').append(
@@ -224,19 +224,26 @@ function createBlockedPeriodsElement() {
   $('#blockedPeriodsContainer').append($('<label for="day">Day: </label>'));
 
   // create blocked period day input
-  $('#blockedPeriodsContainer').append($('<input id="blockedPeriodDay">'));
+  $('#blockedPeriodsContainer').append($('<select id="blockedPeriodDay"></select>'));
+  $('#blockedPeriodDay').append($('<option value="Monday">Monday</option>'));
+  $('#blockedPeriodDay').append($('<option value="Tuesday">Tuesday</option>'));
+  $('#blockedPeriodDay').append($('<option value="Wednesday">Wednesday</option>'));
+  $('#blockedPeriodDay').append($('<option value="Thursday">Thursday</option>'));
+  $('#blockedPeriodDay').append($('<option value="Friday">Friday</option>'));
+  $('#blockedPeriodDay').append($('<option value="Saturday">Saturday</option>'));
+  $('#blockedPeriodDay').append($('<option value="Sunday">Sunday</option>'));
 
   // create blocked period start label
   $('#blockedPeriodsContainer').append($('<label for="start">Start: </label>'));
 
   // create blocked period start input
-  $('#blockedPeriodsContainer').append($('<input id="blockedPeriodStart">'));
+  $('#blockedPeriodsContainer').append($('<input type="time" step="6000" id="blockedPeriodStart">'));
 
   // create blocked period end label
   $('#blocked').append($('<label for="end">End: </label>'));
 
   // create blocked period end input
-  $('#blockedPeriodsContainer').append($('<input id="blockedPeriodEnd">'));
+  $('#blockedPeriodsContainer').append($('<input type="time" id="blockedPeriodEnd">'));
 
   // create blocked periods update button
   $('#blockedPeriodsContainer').append(
