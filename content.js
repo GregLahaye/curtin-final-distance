@@ -295,7 +295,10 @@ function updateSchedulesList(schedules) {
   // add each schedule to list
   schedules.forEach((schedule, index) => {
     $('#schedules').append(
-      $(`<li id="${index}" style="list-style-type: none; padding: 20px; float: left; border-radius: 3px;">Schedule #${index} (${schedule.distance})</li>`)
+      $(`<li id="${index}" style="list-style-type: none; text-align: center; padding: 20px 40px; float: left; border-radius: 3px;">
+        <span><strong>Schedule #${index}</strong></span><br>
+        <span>Distance: ${schedule.distance}</span>
+        </li>`)
     );
   });
 
@@ -391,9 +394,18 @@ function f() {
 
     $('#schedules li').css('background-color', '#eee');
 
-    updateTimetable(schedules[e.target.id]);
+    let li;
+    if (e.target.tagName === 'LI') {
+      li = $(e.target);
+    } else {
+      li = $(e.target).parents('li');
+    }
 
-    $(e.target).css('background-color', '#2fc6e0');
+    const id = li.attr('id');
+
+    updateTimetable(schedules[id]);
+
+    li.css('background-color', '#2fc6e0');
   });
 
   // update travel time input value
