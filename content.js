@@ -407,7 +407,12 @@ function f() {
   // add schedule listener
   $('#schedules').on('click', 'li', (e) => {
     cleanPage();
+
+    $('#schedules li').css('background-color', '#eee');
+
     updateTimetable(schedules[e.target.id]);
+
+    $(e.target).css('background-color', 'limegreen');
   });
 
   // update travel time input value
