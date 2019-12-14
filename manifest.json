@@ -3,6 +3,10 @@
   "name": "Curtin Final Distance",
   "description": "Close the gaps in your Curtin University timetable",
   "version": "0.0.1",
+  "homepage_url": "https://github.com/GregLahaye/curtin-final-distance",
+  "icons": {
+    "128": "icon.png"
+  },
   "content_scripts": [
     {
       "matches": ["http://timetable.student.curtin.edu.au/criteriaEntry.jsf"],
