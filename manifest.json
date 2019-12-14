@@ -1,7 +1,7 @@
 {
   "manifest_version": 2,
-  "name": "Curtin Timetable Helper",
-  "description": "Helps you create the perfect Curtin timetable",
+  "name": "Curtin Final Distance",
+  "description": "Close the gaps in your Curtin University timetable",
   "version": "0.0.1",
   "content_scripts": [
     {
