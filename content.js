@@ -243,9 +243,22 @@ function calculateSchedules(blockedPeriods, travelTime) {
 
   const schedules = findBestSchedules(lessons, travelTime);
 
-  const best = schedules.sort((a, b) => a.distance - b.distance).slice(0, 10);
+  const sorted = schedules.sort((a, b) => a.distance - b.distance);
 
-  return best;
+  let i = 10;
+  let same = true;
+  while (same && i < sorted.length) {
+    same = sorted[i].distance === sorted[9].distance;
+
+    i++;
+  }
+
+  const chosen = sorted.slice(0, i - 1);
+
+  console.log(chosen);
+  console.log(sorted);
+
+  return chosen;
 }
 
 function updateTimetable(schedule) {
