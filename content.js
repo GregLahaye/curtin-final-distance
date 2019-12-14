@@ -133,15 +133,15 @@ function scrapeDocument() {
   return lessons;
 }
 
-function lessonFilter(lesson, blocked) {
+function lessonFilter(lesson, blockedPeriods) {
   // TODO: clean  this up
 
   let valid = lesson.venue !== 'NO.VENUE'; // filter out online lectures
 
   // filter out lessons during blocked periods
   let i = 0;
-  while (valid && i < blocked.length) {
-    valid = !lesson.period.overlaps(blocked[i]);
+  while (valid && i < blockedPeriods.length) {
+    valid = !lesson.period.overlaps(blockedPeriods[i]);
     i += 1;
   }
 
@@ -185,8 +185,8 @@ function findBestSchedules(lessons, travelTime) {
 }
 
 function cleanPage() {
-  // TODO: remove all uneccessary elements from page
   $('.instructions').remove();
+  $('.domTT').remove();
 }
 
 function createTravelTimeElement() {
@@ -199,7 +199,8 @@ function createTravelTimeElement() {
   $('#travelTimeContainer').append(
     $('<label>')
       .attr('for', 'travelTime')
-      .text('Travel Time: '));
+      .text('Travel Time: ')
+  );
 
   // create travel time input
   $('#travelTimeContainer').append($('<input>').attr('id', 'travelTime'));
@@ -209,7 +210,8 @@ function createTravelTimeElement() {
     $('<button>')
       .attr('id', 'updateTravelTime')
       .attr('type', 'button')
-      .text('Update Travel Time'));
+      .text('Update Travel Time')
+  );
 }
 
 function createBlockedPeriodsElement() {
@@ -219,25 +221,19 @@ function createBlockedPeriodsElement() {
     .insertAfter('#timetable_gridbyunit_legend');
 
   // create blocked period day label
-  $('#blockedPeriodsContainer').append(
-    $('<label for="day">Day: </label>')
-  );
+  $('#blockedPeriodsContainer').append($('<label for="day">Day: </label>'));
 
   // create blocked period day input
   $('#blockedPeriodsContainer').append($('<input id="blockedPeriodDay">'));
 
   // create blocked period start label
-  $('#blockedPeriodsContainer').append(
-    $('<label for="start">Start: </label>')
-  );
+  $('#blockedPeriodsContainer').append($('<label for="start">Start: </label>'));
 
   // create blocked period start input
   $('#blockedPeriodsContainer').append($('<input id="blockedPeriodStart">'));
 
   // create blocked period end label
-  $('#blocked').append(
-    $('<label for="end">End: </label>')
-  );
+  $('#blocked').append($('<label for="end">End: </label>'));
 
   // create blocked period end input
   $('#blockedPeriodsContainer').append($('<input id="blockedPeriodEnd">'));
@@ -249,96 +245,38 @@ function createBlockedPeriodsElement() {
 
   // create blocked periods list
   $('#blockedPeriodsContainer').append($('<ul id="blockedPeriodsList"></ul>'));
-
 }
 
-function f() {
-  // TODO: add option to not allow full classes
-  // TODO: add option to not allow certain classes
-
-  let travelTime = 60;
-  const blocked = [];
-
-  // remove unecessary elements from page
-  cleanPage();
-
-  // create blocked periods element
-  createBlockedPeriodsElement();
-
-  // create travel time element
-  createTravelTimeElement();
-
-  // create travel time update listener
-  $('#updateTravelTime').on('click', (e) => {
-    travelTime = +($('#travelTime').val());
-    g(blocked, travelTime);
-    $('#scheduleList li').click();
-  });
-
-  // create add blocked period listener
-  $('#addBlockedPeriod').on('click', (e) => {
-    const day = $('#blockedPeriodDay').val();
-    const start = $('#blockedPeriodStart').val();
-    const end = $('#blockedPeriodEnd').val();
-
-    const period = new Period(day, start, end);
-    blocked.push(period);
-
-    g(blocked, travelTime);
-
-    $('#blockedPeriodsList').append(
-      $(`<li data-day="${day}" data-start="${start}" data-end="${end}">${day}, ${start} to ${end}</li>`)
-    );
-  });
-
-  // create blocked period remove listener
-  $('#blockedPeriodsList').on('click', 'li', (e) => {
-    const day = $(e.target).attr('data-day');
-    const start = $(e.target).attr('data-start');
-    const end = $(e.target).attr('data-end');
-
-    const period = new Period(day, start, end);
-
-    blocked.forEach((current) => {
-      if (period.equals(current)) {
-        blocked.splice(blocked.indexOf(current), 1);
-      }
-    });
-
-    $(e.target).remove();
-
-    g(blocked, travelTime);
-  });
-
-
-  // TODO: show selected schedule on list
-
-  // TODO: create list of top ten best options, more than ten if equal
-  $('<ul>')
-    .attr('id', 'best')
-    .css('list-style-type', 'none')
-    .css('margin', '0')
-    .css('padding', '10px')
-    .css('overflow', 'hidden')
-    .css('width', '100%')
-    .css('text-align', 'center')
-    .css('background-color', '#eeeeee')
-    .insertAfter('#blocked');
-
-  // TODO: add event listeners to update timetable when option from list is selected
-
-  // TODO: allow user to input blocked periods
-
-  g(blocked, travelTime);
-  $('ul#best li#0').click();
+function createSchedulesElement() {
+  $('<ul id="schedules">').insertAfter('#blockedPeriodsContainer');
+  $('#schedules').css('list-style-type', 'none');
+  $('#schedules').css('margin', '0');
+  $('#schedules').css('padding', '10px');
+  $('#schedules').css('overflow', 'hidden');
+  $('#schedules').css('width', '100%');
+  $('#schedules').css('text-align', 'center');
+  $('#schedules').css('background-color', '#eeeeee');
 }
 
-// TODO: rename and clean
-function doStuff(schedule) {
-  $('table.unitList input').each((i, input) => {
-    $(input).prop('checked', false);
+function calculateSchedules(blockedPeriods, travelTime) {
+  let lessons = scrapeDocument();
+
+  lessons = lessons.filter((lesson) => lessonFilter(lesson, blockedPeriods));
+
+  const schedules = findBestSchedules(lessons, travelTime);
+
+  const best = schedules.sort((a, b) => a.score - b.score).slice(0, 10);
+
+  return best;
+}
+
+function updateTimetable(schedule) {
+  $('table.unitList input[type="checkbox"]').each((i, checkbox) => {
+    $(checkbox).prop('checked', false);
   });
 
+  // check lessons from schedule
+  // TODO: clean this up
   $('table.unitList tbody tr').each((i, trElement) => {
     const tdElements = $(trElement).find('td span[title]');
     const unit = $(trElement)
@@ -365,47 +303,112 @@ function doStuff(schedule) {
     }
   });
 
+  // click 'Update Timetable' button
   $('input.formSubmit').click();
 
-  $(document).scrollTop($('#best').offset().top);
-
-  // TODO: add anchor tag and go there (top of calendar)
+  // scroll to top of schedules
+  $(document).scrollTop($('#schedules').offset().top);
 }
 
-function g(blocked, travelTime) {
-  let lessons = scrapeDocument();
-  // TODO: move to separate function
-  lessons = lessons.filter((lesson) => lessonFilter(lesson, blocked));
+function updateSchedulesList(schedules) {
+  // remove current schedules
+  $('#schedules li').remove();
 
-  const schedules = findBestSchedules(lessons, travelTime);
-
-  // TODO: move to separate function
-  const best = schedules.sort((a, b) => a.score - b.score).slice(0, 10);
-
-  $('ul#best li').remove();
-
-  // TODO: add better details to each li, improve styling
-  best.forEach((schedule, index) => {
-    $('ul#best').append(
-      $('<li>')
-        .attr('id', index)
-        .text(`Schedule #${index} (${schedule.score})`)
-        .css('float', 'left')
-        .css('list-style-type', 'none')
-        .css('width', '20%')
-        .css('margin', '0')
-        .css('text-align', 'center')
-        .css('background-color', 'skyblue')
-        .css('padding', '10px 0')
+  // add each schedule to list
+  schedules.forEach((schedule, index) => {
+    $('#schedules').append(
+      $(`<li id="${index}">Schedule #${index} (${schedule.score})</li>`)
     );
   });
 
-  $('ul#best li').css('outline', '5px solid #eee');
+  // update schedule styling
+  $('#scheudles li')
+    .css('float', 'left')
+    .css('list-style-type', 'none')
+    .css('width', '20%')
+    .css('margin', '0')
+    .css('text-align', 'center')
+    .css('background-color', 'skyblue')
+    .css('padding', '10px 0');
 
-  $('ul#best > li').on('click', (e) => {
-    $('.domTT').remove();
-    doStuff(best[e.target.id]);
+  // select best schedule
+  $('#schedules li#0').click();
+}
+
+function f() {
+  let schedules = [];
+  let travelTime = 60;
+  const blockedPeriods = [];
+
+  // remove unecessary elements from page
+  cleanPage();
+
+  // create blocked periods element
+  createBlockedPeriodsElement();
+
+  // create travel time element
+  createTravelTimeElement();
+
+  createSchedulesElement();
+
+  // create travel time update listener
+  $('#updateTravelTime').on('click', () => {
+    travelTime = +$('#travelTime').val();
+    schedules = calculateSchedules(blockedPeriods, travelTime);
+    updateSchedulesList(schedules);
   });
+
+  // create add blocked period listener
+  $('#addBlockedPeriod').on('click', () => {
+    const day = $('#blockedPeriodDay').val();
+    const start = $('#blockedPeriodStart').val();
+    const end = $('#blockedPeriodEnd').val();
+
+    const period = new Period(day, start, end);
+    blockedPeriods.push(period);
+
+    schedules = calculateSchedules(blockedPeriods, travelTime);
+    updateSchedulesList(schedules);
+
+    $('#blockedPeriodsList').append(
+      $(
+        `<li data-day="${day}" data-start="${start}" data-end="${end}">${day}, ${start} to ${end}</li>`
+      )
+    );
+  });
+
+  // create blocked period remove listener
+  $('#blockedPeriodsList').on('click', 'li', (e) => {
+    const day = $(e.target).attr('data-day');
+    const start = $(e.target).attr('data-start');
+    const end = $(e.target).attr('data-end');
+
+    const period = new Period(day, start, end);
+
+    blockedPeriods.forEach((current) => {
+      if (period.equals(current)) {
+        blockedPeriods.splice(blockedPeriods.indexOf(current), 1);
+      }
+    });
+
+    $(e.target).remove();
+
+    schedules = calculateSchedules(blockedPeriods, travelTime);
+    updateSchedulesList(schedules);
+  });
+
+  // add schedule listener
+  $('#schedules').on('click', 'li', (e) => {
+    cleanPage();
+    updateTimetable(schedules[e.target.id]);
+  });
+
+  // update travel time input value
+  $('#travelTime').val(travelTime);
+
+  schedules = calculateSchedules(blockedPeriods, travelTime);
+
+  updateSchedulesList(schedules);
 }
 
 f();
