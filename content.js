@@ -186,7 +186,7 @@ function findBestSchedules(lessons, travelTime) {
 
 function cleanPage() {
   // TODO: remove all uneccessary elements from page
-  $('.instructions').hide();
+  $('.instructions').remove();
 }
 
 function f() {
@@ -194,10 +194,13 @@ function f() {
   // TODO: add option to not allow certain classes
 
   // user defined values
+  /*
   const blocked = [
     new Period('Monday', '16:00', '20:00'),
     new Period('Thursday', '11:00', '13:00'),
   ];
+  */
+  const blocked = [];
 
   const travelTime = 120;
 
@@ -217,30 +220,33 @@ function f() {
     .attr('id', 'best')
     .css('list-style-type', 'none')
     .css('margin', '0')
-    .css('padding', '0')
+    .css('padding', '10px')
     .css('overflow', 'hidden')
     .css('width', '100%')
     .css('text-align', 'center')
     .css('background-color', '#eeeeee')
     .insertAfter('#timetable_gridbyunit_legend');
 
+  // TODO: add better details to each li, improve styling
   best.forEach((schedule, index) => {
     $('ul#best').append(
       $('<li>')
         .attr('id', index)
-        .text(index)
+        .text('Schedule #' + index + ' (' + schedule.score + ')')
         .css('float', 'left')
         .css('list-style-type', 'none')
         .css('width', '20%')
         .css('margin', '0')
         .css('text-align', 'center')
+        .css('background-color', 'skyblue')
         .css('padding', '10px 0')
     );
   });
 
-  $('ul li:odd').css('background-color', '#ddd');
+  $('ul li').css('outline', '5px solid #eee');
 
   $('ul#best > li').on('click', (e) => {
+    $('.domTT').remove();
     doStuff(best[e.target.id]);
   });
 
