@@ -189,100 +189,129 @@ function cleanPage() {
   $('.instructions').remove();
 }
 
+function createTravelTimeElement() {
+  // create travel time div
+  $('<div>')
+    .attr('id', 'travelTimeContainer')
+    .insertAfter('#timetable_gridbyunit_legend');
+
+  // create travel time label
+  $('#travelTimeContainer').append(
+    $('<label>')
+      .attr('for', 'travelTime')
+      .text('Travel Time: '));
+
+  // create travel time input
+  $('#travelTimeContainer').append($('<input>').attr('id', 'travelTime'));
+
+  // create travel time button
+  $('#travelTimeContainer').append(
+    $('<button>')
+      .attr('id', 'updateTravelTime')
+      .attr('type', 'button')
+      .text('Update Travel Time'));
+}
+
+function createBlockedPeriodsElement() {
+  // create blocked periods container
+  $('<div>')
+    .attr('id', 'blockedPeriodsContainer')
+    .insertAfter('#timetable_gridbyunit_legend');
+
+  // create blocked period day label
+  $('#blockedPeriodsContainer').append(
+    $('<label for="day">Day: </label>')
+  );
+
+  // create blocked period day input
+  $('#blockedPeriodsContainer').append($('<input id="blockedPeriodDay">'));
+
+  // create blocked period start label
+  $('#blockedPeriodsContainer').append(
+    $('<label for="start">Start: </label>')
+  );
+
+  // create blocked period start input
+  $('#blockedPeriodsContainer').append($('<input id="blockedPeriodStart">'));
+
+  // create blocked period end label
+  $('#blocked').append(
+    $('<label for="end">End: </label>')
+  );
+
+  // create blocked period end input
+  $('#blockedPeriodsContainer').append($('<input id="blockedPeriodEnd">'));
+
+  // create blocked periods update button
+  $('#blockedPeriodsContainer').append(
+    $('<button id="addBlockedPeriod" type="button">Add</button>')
+  );
+
+  // create blocked periods list
+  $('#blockedPeriodsContainer').append($('<ul id="blockedPeriodsList"></ul>'));
+
+}
+
 function f() {
   // TODO: add option to not allow full classes
   // TODO: add option to not allow certain classes
 
-  let travelTime = 120;
-
-  $('<div>')
-    .attr('id', 'blocked')
-    .insertAfter('#timetable_gridbyunit_legend');
-
-  $('<div>')
-    .attr('id', 'travel')
-    .insertAfter('#timetable_gridbyunit_legend');
-  $('#travel').append(
-    $('<label>')
-      .attr('for', 'time')
-      .text('Travel Time: ')
-  );
-  $('#travel').append($('<input>').attr('id', 'time'));
-  $('#travel').append(
-    $('<button>')
-      .attr('id', 'trav')
-      .attr('type', 'button')
-      .text('Update')
-  );
-  $('#trav').on('click', (e) => {
-    travelTime = +$('#time').val();
-    g(blocked, travelTime);
-    $('ul#best li#0').click();
-  });
-
-  $('#blocked').append(
-    $('<label>')
-      .attr('for', 'day')
-      .text('Day: ')
-  );
-  $('#blocked').append($('<input>').attr('id', 'day'));
-  $('#blocked').append(
-    $('<label>')
-      .attr('for', 'start')
-      .text('Start: ')
-  );
-  $('#blocked').append($('<input>').attr('id', 'start'));
-  $('#blocked').append(
-    $('<label>')
-      .attr('for', 'end')
-      .text('End: ')
-  );
-  $('#blocked').append($('<input>').attr('id', 'end'));
-  $('#blocked').append(
-    $('<button>')
-      .attr('id', 'block')
-      .attr('type', 'button')
-      .text('Add')
-  );
-  $('#blocked').append($('<ul>').attr('id', 'blacklist'));
-
-  $('#block').on('click', (e) => {
-    const day = $('#day').val();
-    const start = $('#start').val();
-    const end = $('#end').val();
-    const period = new Period(day, start, end);
-    blocked.push(period);
-    g(blocked, travelTime);
-    $('#blocked ul#blacklist').append(
-      $('<li>')
-        .text(`${day} ${start} - ${end}`)
-        .attr('day', day)
-        .attr('start', start)
-        .attr('end', end)
-    );
-    $('ul#best li#0').click();
-  });
-
-  $('ul#blacklist').on('click', 'li', (e) => {
-    const day = $(e.target).attr('day');
-    const start = $(e.target).attr('start');
-    const end = $(e.target).attr('end');
-    const period = new Period(day, start, end);
-    blocked.forEach((a) => {
-      if (period.equals(a)) {
-        blocked.splice(blocked.indexOf(a), 1);
-      }
-    });
-    $(e.target).remove();
-    g(blocked, travelTime);
-    $('ul#best li#0').click();
-  });
-
+  let travelTime = 60;
   const blocked = [];
 
-  // TODO: show selected schedule on list
-
+  // remove unecessary elements from page
   cleanPage();
+
+  // create blocked periods element
+  createBlockedPeriodsElement();
+
+  // create travel time element
+  createTravelTimeElement();
+
+  // create travel time update listener
+  $('#updateTravelTime').on('click', (e) => {
+    travelTime = +($('#travelTime').val());
+    g(blocked, travelTime);
+    $('#scheduleList li').click();
+  });
+
+  // create add blocked period listener
+  $('#addBlockedPeriod').on('click', (e) => {
+    const day = $('#blockedPeriodDay').val();
+    const start = $('#blockedPeriodStart').val();
+    const end = $('#blockedPeriodEnd').val();
+
+    const period = new Period(day, start, end);
+    blocked.push(period);
+
+    g(blocked, travelTime);
+
+    $('#blockedPeriodsList').append(
+      $(`<li data-day="${day}" data-start="${start}" data-end="${end}">${day}, ${start} to ${end}</li>`)
+    );
+  });
+
+  // create blocked period remove listener
+  $('#blockedPeriodsList').on('click', 'li', (e) => {
+    const day = $(e.target).attr('data-day');
+    const start = $(e.target).attr('data-start');
+    const end = $(e.target).attr('data-end');
+
+    const period = new Period(day, start, end);
+
+    blocked.forEach((current) => {
+      if (period.equals(current)) {
+        blocked.splice(blocked.indexOf(current), 1);
+      }
+    });
+
+    $(e.target).remove();
+
+    g(blocked, travelTime);
+  });
+
+
+  // TODO: show selected schedule on list
 
   // TODO: create list of top ten best options, more than ten if equal
   $('<ul>')
