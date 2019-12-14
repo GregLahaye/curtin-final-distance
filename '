@@ -190,50 +190,75 @@ function cleanPage() {
 }
 
 function createTravelTimeElement() {
-  $(`<div id="travelTimeContainer" style="padding: 20px 40px; background-color: #eee; border-radius: 5px; margin: 10px">
-      <span style="font-size: 18px">How long does it take you to travel to university?</span>
-      <div style="padding: 20px">
-        <label for="travelTime">Travel Time: </label>
-        <input type="number" id="travelTime">
-
-        <button type="button" id="updateTravelTime">Update</button>
-      </div>
+  $(`<div id="travelTimeContainer" style="border: 1px solid black; padding: 20px">
+      <p>How long does it take you to travel to university?</p>
+      <label for="travelTime">Travel Time</label>
+      <input type="number" id="travelTime">
+      <button type="button" id="updateTravelTime">Update</button>
     </div>`).insertAfter('#timetable_gridbyunit_legend');
 }
 
 function createBlockedPeriodsElement() {
-  $(`<div id="blockedPeriodsContainer" style="padding: 20px 40px; background-color: #eee; border-radius: 5px; margin: 10px">
-      <span style="font-size: 18px">Which times would you like to block?</span>
-      <div>
-        <label for="blockedPeriodDay">Day: </label>
-        <select id="blockedPeriodDay">
-          <option value="Monday">Monday</option>
-          <option value="Tuesday">Tuesday</option>
-          <option value="Wednesday">Wednesday</option>
-          <option value="Thursday">Thursday</option>
-          <option value="Friday">Friday</option>
-          <option value="Saturday">Saturday</option>
-          <option value="Sunday">Sunday</option>
-        </select>
+  // create blocked periods container
+  $('<div>')
+    .attr('id', 'blockedPeriodsContainer')
+    .insertAfter('#timetable_gridbyunit_legend');
 
-        <label for="blockedPeriodStart">Start: </label>
-        <input type="time" id="blockedPeriodStart">
+  // create blocked period day label
+  $('#blockedPeriodsContainer').append($('<label for="day">Day: </label>'));
 
-        <label for="blockedPeriodEnd">End: </label>
-        <input type="time" id="blockedPeriodEnd">
+  // create blocked period day input
+  $('#blockedPeriodsContainer').append(
+    $('<select id="blockedPeriodDay"></select>')
+  );
+  $('#blockedPeriodDay').append($('<option value="Monday">Monday</option>'));
+  $('#blockedPeriodDay').append($('<option value="Tuesday">Tuesday</option>'));
+  $('#blockedPeriodDay').append(
+    $('<option value="Wednesday">Wednesday</option>')
+  );
+  $('#blockedPeriodDay').append(
+    $('<option value="Thursday">Thursday</option>')
+  );
+  $('#blockedPeriodDay').append($('<option value="Friday">Friday</option>'));
+  $('#blockedPeriodDay').append(
+    $('<option value="Saturday">Saturday</option>')
+  );
+  $('#blockedPeriodDay').append($('<option value="Sunday">Sunday</option>'));
 
-        <button type="button" id="addBlockedPeriod">Add</button>
+  // create blocked period start label
+  $('#blockedPeriodsContainer').append($('<label for="start">Start: </label>'));
 
-        <ul id="blockedPeriodsList" style="font-size: 14px;">
-        </ul>
-      </div>
-    </div>`).insertAfter('#timetable_gridbyunit_legend');
+  // create blocked period start input
+  $('#blockedPeriodsContainer').append(
+    $('<input type="time" step="6000" id="blockedPeriodStart">')
+  );
+
+  // create blocked period end label
+  $('#blocked').append($('<label for="end">End: </label>'));
+
+  // create blocked period end input
+  $('#blockedPeriodsContainer').append(
+    $('<input type="time" id="blockedPeriodEnd">')
+  );
+
+  // create blocked periods update button
+  $('#blockedPeriodsContainer').append(
+    $('<button id="addBlockedPeriod" type="button">Add</button>')
+  );
+
+  // create blocked periods list
+  $('#blockedPeriodsContainer').append($('<ul id="blockedPeriodsList"></ul>'));
 }
 
 function createSchedulesElement() {
-  $(
-    `<ul id="schedules" style="">
-    </ul>`).insertAfter('#blockedPeriodsContainer');
+  $('<ul id="schedules">').insertAfter('#blockedPeriodsContainer');
+  $('#schedules').css('list-style-type', 'none');
+  $('#schedules').css('margin', '0');
+  $('#schedules').css('padding', '10px');
+  $('#schedules').css('overflow', 'hidden');
+  $('#schedules').css('width', '100%');
+  $('#schedules').css('text-align', 'center');
+  $('#schedules').css('background-color', '#eeeeee');
 }
 
 function calculateSchedules(blockedPeriods, travelTime) {
@@ -295,7 +320,7 @@ function updateSchedulesList(schedules) {
   // add each schedule to list
   schedules.forEach((schedule, index) => {
     $('#schedules').append(
-      $(`<li id="${index}" style="list-style-type: none; padding: 20px; float: left; border-radius: 3px;">Schedule #${index} (${schedule.distance})</li>`)
+      $(`<li id="${index}">Schedule #${index} (${schedule.distance})</li>`)
     );
   });
 
@@ -350,7 +375,7 @@ function f() {
 
     $('#blockedPeriodsList').append(
       $(
-        `<li data-day="${day}" data-start="${start}" data-end="${end}" style="border-radius: 3px">${day}, ${start} to ${end}</li>`
+        `<li data-day="${day}" data-start="${start}" data-end="${end}">${day}, ${start} to ${end}</li>`
       )
     );
   });
@@ -374,16 +399,6 @@ function f() {
     schedules = calculateSchedules(blockedPeriods, travelTime);
     updateSchedulesList(schedules);
   });
-  
-  // create blocked period hover listener
-  $('#blockedPeriodsList').on('mouseenter', 'li', (e) => {
-    $(e.target).css('background-color', '#eb6746');
-  });
-
-  // create blocked period un-hover listener
-  $('#blockedPeriodsList').on('mouseleave', 'li', (e) => {
-    $(e.target).css('background-color', '#eee');
-  });
 
   // add schedule listener
   $('#schedules').on('click', 'li', (e) => {
@@ -393,7 +408,7 @@ function f() {
 
     updateTimetable(schedules[e.target.id]);
 
-    $(e.target).css('background-color', '#2fc6e0');
+    $(e.target).css('background-color', 'limegreen');
   });
 
   // update travel time input value
