@@ -189,29 +189,56 @@ function cleanPage() {
   $('.instructions').remove();
 }
 
+
 function f() {
   // TODO: add option to not allow full classes
   // TODO: add option to not allow certain classes
 
-  // user defined values
-  /*
-  const blocked = [
-    new Period('Monday', '16:00', '20:00'),
-    new Period('Thursday', '11:00', '13:00'),
-  ];
-  */
+  $('<div>')
+    .attr('id', 'blocked')
+    .insertAfter('#timetable_gridbyunit_legend');
+
+  $('#blocked').append($('<label>').attr('for', 'day').text('Day: '));
+  $('#blocked').append($('<input>').attr('id', 'day'));
+  $('#blocked').append($('<label>').attr('for', 'start').text('Start: '));
+  $('#blocked').append($('<input>').attr('id', 'start'));
+  $('#blocked').append($('<label>').attr('for', 'end').text('End: '));
+  $('#blocked').append($('<input>').attr('id', 'end'));
+  $('#blocked').append($('<button>').attr('id', 'block').attr('type', 'button').text('Add'));
+  $('#blocked').append($('<ul>').attr('id', 'blacklist'));
+
+  $('#block').on('click', (e) => {
+    const day = $('#day').val();
+    const start = $('#start').val();
+    const end = $('#end').val();
+    const period = new Period(day, start, end);
+    blocked.push(period);
+    g(blocked, travelTime);
+    $('#blocked ul#blacklist').append($('<li>').text(day + ' ' + start + ' - ' + end).attr('day', day).attr('start', start).attr('end', end));
+    $('ul#best li#0').click();
+  });
+
+  $('ul#blacklist').on('click', 'li', (e) => {
+    const day = $(e.target).attr('day');
+    const start = $(e.target).attr('start');
+    const end = $(e.target).attr('end');
+    const period = new Period(day, start, end); 
+    blocked.forEach((a) => {
+      if (period.equals(a)) {
+        blocked.splice(blocked.indexOf(a), 1);
+      }
+    });
+    $(e.target).remove();
+    g(blocked, travelTime);
+    $('ul#best li#0').click();
+  });
+
   const blocked = [];
 
+  // TODO: allow for input
   const travelTime = 120;
 
-  let lessons = scrapeDocument();
-  // TODO: move to separate function
-  lessons = lessons.filter((lesson) => lessonFilter(lesson, blocked));
-
-  const schedules = findBestSchedules(lessons, travelTime);
-
-  // TODO: move to separate function
-  const best = schedules.sort((a, b) => a.score - b.score).slice(0, 10);
+  // TODO: show selected schedule on list
 
   cleanPage();
 
@@ -225,36 +252,16 @@ function f() {
     .css('width', '100%')
     .css('text-align', 'center')
     .css('background-color', '#eeeeee')
-    .insertAfter('#timetable_gridbyunit_legend');
+    .insertAfter('#blocked');
 
-  // TODO: add better details to each li, improve styling
-  best.forEach((schedule, index) => {
-    $('ul#best').append(
-      $('<li>')
-        .attr('id', index)
-        .text('Schedule #' + index + ' (' + schedule.score + ')')
-        .css('float', 'left')
-        .css('list-style-type', 'none')
-        .css('width', '20%')
-        .css('margin', '0')
-        .css('text-align', 'center')
-        .css('background-color', 'skyblue')
-        .css('padding', '10px 0')
-    );
-  });
 
-  $('ul li').css('outline', '5px solid #eee');
-
-  $('ul#best > li').on('click', (e) => {
-    $('.domTT').remove();
-    doStuff(best[e.target.id]);
-  });
 
   // TODO: add event listeners to update timetable when option from list is selected
 
   // TODO: allow user to input blocked periods
 
-  console.log(best);
+  g(blocked, travelTime);
+  $('ul#best li#0').click();
 }
 
 // TODO: rename and clean
@@ -294,6 +301,43 @@ function doStuff(schedule) {
   $(document).scrollTop($('#best').offset().top);
 
   // TODO: add anchor tag and go there (top of calendar)
+}
+
+function g(blocked, travelTime) {
+  let lessons = scrapeDocument();
+  // TODO: move to separate function
+  lessons = lessons.filter((lesson) => lessonFilter(lesson, blocked));
+
+  const schedules = findBestSchedules(lessons, travelTime);
+
+  // TODO: move to separate function
+  const best = schedules.sort((a, b) => a.score - b.score).slice(0, 10);
+
+  $('ul#best li').remove();
+
+  // TODO: add better details to each li, improve styling
+  best.forEach((schedule, index) => {
+    $('ul#best').append(
+      $('<li>')
+        .attr('id', index)
+        .text('Schedule #' + index + ' (' + schedule.score + ')')
+        .css('float', 'left')
+        .css('list-style-type', 'none')
+        .css('width', '20%')
+        .css('margin', '0')
+        .css('text-align', 'center')
+        .css('background-color', 'skyblue')
+        .css('padding', '10px 0')
+    );
+  });
+
+
+  $('ul#best li').css('outline', '5px solid #eee');
+
+  $('ul#best > li').on('click', (e) => {
+    $('.domTT').remove();
+    doStuff(best[e.target.id]);
+  });
 }
 
 f();
