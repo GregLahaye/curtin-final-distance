@@ -195,6 +195,7 @@ function createTravelTimeElement() {
       <div style="padding: 20px">
         <label for="travelTime">Travel Time: </label>
         <input type="number" id="travelTime">
+        <span> minutes</span>
 
         <button type="button" id="updateTravelTime">Update</button>
       </div>
@@ -233,7 +234,8 @@ function createBlockedPeriodsElement() {
 function createSchedulesElement() {
   $(
     `<ul id="schedules" style="">
-    </ul>`).insertAfter('#blockedPeriodsContainer');
+    </ul>`
+  ).insertBefore('#timetableByUnits\\:timetable_gridbyunit');
 }
 
 function calculateSchedules(blockedPeriods, travelTime) {
@@ -250,7 +252,7 @@ function calculateSchedules(blockedPeriods, travelTime) {
   while (same && i < sorted.length) {
     same = sorted[i].distance === sorted[9].distance;
 
-    i++;
+    i += 1;
   }
 
   const chosen = sorted.slice(0, i - 1);
@@ -298,7 +300,9 @@ function updateTimetable(schedule) {
   $('input.formSubmit').click();
 
   // scroll to top of schedules
-  $(document).scrollTop($('#schedules').offset().top);
+  $(document).scrollTop(
+    $('#timetableByUnits\\:timetable_gridbyunit').offset().top
+  );
 }
 
 function updateSchedulesList(schedules) {
@@ -390,7 +394,7 @@ function f() {
     schedules = calculateSchedules(blockedPeriods, travelTime);
     updateSchedulesList(schedules);
   });
-  
+
   // create blocked period hover listener
   $('#blockedPeriodsList').on('mouseenter', 'li', (e) => {
     $(e.target).css('background-color', '#eb6746');
